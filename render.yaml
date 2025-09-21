@@ -7,9 +7,10 @@ services:
     buildCommand: |
       pip install --upgrade pip &&
       pip install -r requirements.txt &&
-      python -c "import nltk; nltk.download('punkt')" &&
-      python -c "import nltk; nltk.download('stopwords')" &&
-      python ingestion.py
+      python -c "import nltk; nltk.download('punkt', quiet=True)" &&
+      python -c "import nltk; nltk.download('stopwords', quiet=True)" &&
+      mkdir -p ./storage ./data ./output/parsed_markdown ./output/extracted_images ./research_outputs &&
+      if [ -d "./data" ] && [ "$(ls -A ./data)" ]; then python ingestion.py; else echo "No data files found, skipping ingestion"; fi
     startCommand: python app.py
     healthCheckPath: /health
     envVars:

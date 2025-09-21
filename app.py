@@ -68,6 +68,7 @@ HTML_TEMPLATE = """
                 <li>Research export capabilities</li>
                 <li>No external API dependencies for core functionality</li>
             </ul>
+            <p><small><a href="/debug" target="_blank">🔧 System Diagnostics</a></small></p>
         </div>
 
         <div id="status"></div>
@@ -169,6 +170,26 @@ HTML_TEMPLATE = """
                 submitQuery();
             }
         });
+
+        // Check system status on page load
+        window.addEventListener('load', function() {
+            checkSystemStatus();
+        });
+
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'healthy') {
+                    showStatus('System ready! You can start asking research questions.', 'success');
+                } else {
+                    showStatus(`System status: ${data.message}. ${data.details ? 'Check diagnostics for details.' : ''}`, 'error');
+                }
+            } catch (error) {
+                showStatus('Unable to check system status.', 'error');
+            }
+        }
     </script>
 </body>
 </html>
@@ -179,24 +200,80 @@ def initialize_agent():
     global agent, research_session, exporter
     
     try:
+        logger.info("Starting agent initialization...")
+        
+        # Check environment variables first
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            logger.error("GOOGLE_API_KEY not found in environment variables")
+            return initialize_fallback_agent()
+        
+        logger.info("✅ API key found")
+        
+        # Check if storage directory exists
+        if not os.path.exists('./storage'):
+            logger.warning("Storage directory not found. Attempting to create...")
+            os.makedirs('./storage', exist_ok=True)
+            
+        # Check if knowledge base exists
+        if not os.path.exists('./storage/docstore.json'):
+            logger.warning("Knowledge base not found. Using fallback mode.")
+            return initialize_fallback_agent()
+        
         # Import and initialize settings
+        logger.info("Initializing settings...")
         from main import initialize_settings
         initialize_settings()
+        logger.info("✅ Settings initialized")
         
         # Import agent components
+        logger.info("Importing agent components...")
         from agent import setup_agent, ResearchExporter, create_research_session
         import config
+        logger.info("✅ Agent components imported")
         
         # Setup agent and session
+        logger.info("Setting up agent...")
         agent = setup_agent()
+        logger.info("✅ Agent setup complete")
+        
+        logger.info("Creating research session...")
         research_session = create_research_session()
+        logger.info("✅ Research session created")
+        
+        logger.info("Setting up exporter...")
         exporter = ResearchExporter(config.RESEARCH_OUTPUT_DIR)
+        logger.info("✅ Exporter setup complete")
         
         logger.info("✅ Deep Research Agent initialized successfully")
         return True
         
     except Exception as e:
         logger.error(f"Failed to initialize agent: {e}")
+        logger.error(f"Error type: {type(e).__name__}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        logger.info("Falling back to basic mode...")
+        return initialize_fallback_agent()
+
+def initialize_fallback_agent():
+    """Initialize fallback agent when main agent fails"""
+    global agent, research_session, exporter
+    
+    try:
+        logger.info("Initializing fallback agent...")
+        from fallback_agent import FallbackAgent, create_fallback_session, FallbackExporter
+        import config
+        
+        agent = FallbackAgent()
+        research_session = create_fallback_session()
+        exporter = FallbackExporter(config.RESEARCH_OUTPUT_DIR)
+        
+        logger.info("✅ Fallback agent initialized successfully")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to initialize fallback agent: {e}")
         return False
 
 @app.route('/')
@@ -208,8 +285,47 @@ def index():
 def health():
     """Health check endpoint for Render"""
     if agent is None:
-        return jsonify({'status': 'initializing', 'message': 'Agent is starting up'}), 503
-    return jsonify({'status': 'healthy', 'message': 'Deep Research Agent is running'})
+        return jsonify({
+            'status': 'initializing', 
+            'message': 'Agent is starting up',
+            'details': {
+                'agent_ready': False,
+                'api_key_present': bool(os.getenv("GOOGLE_API_KEY")),
+                'storage_exists': os.path.exists('./storage'),
+                'docstore_exists': os.path.exists('./storage/docstore.json')
+            }
+        }), 503
+    return jsonify({
+        'status': 'healthy', 
+        'message': 'Deep Research Agent is running',
+        'details': {
+            'agent_ready': True,
+            'session_active': research_session is not None,
+            'exporter_ready': exporter is not None
+        }
+    })
+
+@app.route('/debug')
+def debug():
+    """Debug endpoint to check system status"""
+    return jsonify({
+        'environment': {
+            'google_api_key_present': bool(os.getenv("GOOGLE_API_KEY")),
+            'render_env': os.getenv("RENDER_ENV", "not_set"),
+            'port': os.getenv("PORT", "not_set")
+        },
+        'filesystem': {
+            'storage_exists': os.path.exists('./storage'),
+            'docstore_exists': os.path.exists('./storage/docstore.json'),
+            'data_exists': os.path.exists('./data'),
+            'current_directory': os.getcwd()
+        },
+        'agent_status': {
+            'agent_initialized': agent is not None,
+            'session_active': research_session is not None,
+            'exporter_ready': exporter is not None
+        }
+    })
 
 @app.route('/research', methods=['POST'])
 def research():

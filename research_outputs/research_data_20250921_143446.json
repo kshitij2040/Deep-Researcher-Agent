@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "generated_at": "2025-09-21T14:34:46.502515",
+    "export_format": "json",
+    "agent_version": "deep_researcher_v1.0"
+  },
+  "research_data": {
+    "session_id": "20250921_142832",
+    "start_time": "2025-09-21T14:28:32.342871",
+    "queries": [],
+    "responses": [],
+    "reasoning_steps": [],
+    "export_history": []
+  }
+}
