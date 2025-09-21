@@ -11,7 +11,8 @@ from llama_index.core import (
 from llama_index.core.retrievers import BaseRetriever, VectorIndexRetriever
 # Temporarily comment out BM25 due to compatibility issues
 # from llama_index.retrievers.bm25 import BM25Retriever
-from llama_index.postprocessor.colbert_rerank import ColbertRerank
+# Temporarily comment out ColBERT due to size constraints
+# from llama_index.postprocessor.colbert_rerank import ColbertRerank
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.llms.gemini import Gemini
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
@@ -144,28 +145,13 @@ def setup_query_engine():
     # Use only vector retriever for now
     hybrid_retriever = vector_retriever
 
-    # --- Initialize ColBERT Re-ranker (optional, can be disabled for testing) ---
-    try:
-        reranker = ColbertRerank(
-            top_n=config.RERANKER_TOP_N,
-            model=config.RERANKER_MODEL,
-            tokenizer=config.RERANKER_MODEL,
-            keep_retrieval_score=True,
-        )
-        
-        # --- Assemble the Query Engine ---
-        query_engine = RetrieverQueryEngine.from_args(
-            retriever=hybrid_retriever,
-            node_postprocessors=[reranker],
-        )
-        print("✅ Hybrid query engine with ColBERT re-ranker is ready.")
-        
-    except Exception as e:
-        print(f"⚠️  ColBERT reranker failed, using basic query engine: {e}")
-        # Fallback to basic query engine without reranker
-        query_engine = RetrieverQueryEngine.from_args(
-            retriever=hybrid_retriever,
-        )
-        print("✅ Hybrid query engine (without reranker) is ready.")
+    # --- Initialize ColBERT Re-ranker (disabled for deployment) ---
+    # Temporarily disabled due to package size constraints
+    print("⚠️  ColBERT reranker disabled for deployment, using basic query engine")
+    # Fallback to basic query engine without reranker
+    query_engine = RetrieverQueryEngine.from_args(
+        retriever=hybrid_retriever,
+    )
+    print("✅ Vector query engine is ready.")
 
     return query_engine

@@ -1,14 +1,14 @@
 # Deep Research Agent - Production Dependencies
-# Optimized for Render deployment
+# Optimized for Render deployment with Python 3.11
 
 # Core LlamaIndex components
 llama-index
 llama-index-core
-llama-index-retrievers-bm25
+# llama-index-retrievers-bm25  # Temporarily disabled due to compatibility
 llama-index-vector-stores-qdrant
 llama-index-embeddings-huggingface
 llama-index-llms-gemini
-llama-index-postprocessor-colbert-rerank
+# llama-index-postprocessor-colbert-rerank  # Temporarily disabled due to size
 
 # Web framework for API endpoints
 flask==2.3.3
@@ -16,17 +16,17 @@ flask-cors==4.0.0
 gunicorn==21.2.0
 
 # Document processing and parsing
-nougat-ocr
+# nougat-ocr  # Large dependency, temporarily disabled
 pymupdf4llm
-markdown-analysis
+# markdown-analysis  # Temporarily disabled due to compatibility
 
 # Vector database and search
 qdrant-client
-rank_bm25
+# rank_bm25  # Disabled with BM25 retriever
 
 # Machine learning and embeddings
-transformers==4.38.2
-torch==2.0.1
+transformers>=4.30.0,<5.0.0
+torch>=2.0.0
 sentence-transformers
 
 # Utilities
@@ -36,9 +36,8 @@ pandas
 requests
 
 # Production optimizations
-albumentations==1.3.1
+# albumentions==1.3.1  # Large dependency, temporarily disabled
 nltk
 
-# Development tools (remove in production if needed)
-# pytest
-# black
+# Google API dependencies
+google-generativeai

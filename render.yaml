@@ -3,6 +3,7 @@ services:
     name: deep-research-agent
     env: python
     plan: starter  # Can upgrade to standard/pro for more resources
+    runtime: python-3.11.10  # Specify Python 3.11 for compatibility
     buildCommand: |
       pip install --upgrade pip &&
       pip install -r requirements.txt &&
