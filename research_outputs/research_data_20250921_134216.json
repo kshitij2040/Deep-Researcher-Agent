@@ -1,0 +1,25 @@
+{
+  "metadata": {
+    "generated_at": "2025-09-21T13:42:16.086845",
+    "export_format": "json",
+    "agent_version": "deep_researcher_v1.0"
+  },
+  "research_data": {
+    "session_id": "20250921_133309",
+    "start_time": "2025-09-21T13:33:09.773056",
+    "queries": [
+      "waht is basic model of smart home system"
+    ],
+    "responses": [
+      "The basic model of a smart home system integrates internet connectivity, a smart home gateway, and various end devices to provide easy access and control of wirelessly connected devices, both locally and remotely.\n\nThe core of the system is an **Energy Management System (EMS)**, which gathers environmental information through deployed sensors (detecting heat, light, occupancy, noise, etc.). The EMS analyzes this sensor data along with external data and user input from a Graphical User Interface.\n\nKey architectural elements include:\n*   **Central Monitor (or Home Automation Controller):** This component collects and interprets data, makes decisions based on algorithms, acts as a gateway for interoperability, predicts energy conservation, and sends notifications.\n*   **Sensors:** Devices that detect and quantify specific attributes of the smart home environment (e.g., temperature, lighting, motion) and send this data to the central monitor.\n*   **Actuators:** These execute reactive actions on home subsystems or appliances (e.g., turning lights on/off, adjusting thermostats) in response to commands from the central monitor or user requests.\n*   **User Interface (UI):** This allows users to interact with the system through dedicated web-based or mobile applications, providing control and receiving notifications.\n\nIn operation, sensors and user inputs send data and commands to the central controller. This controller processes the information and sends signals to different network nodes, each connected to load control relays that operate electrical appliances (like lights, fans, or air conditioners). This enables automated and remote control, optimizing energy usage, improving efficiency, and enhancing convenience.\n\nCommon communication technologies used include Wi-Fi, ZigBee, Bluetooth, and Z-Wave. Major device classes include household appliances, meters, HVAC devices, environmental controls, and consumer electronics."
+    ],
+    "reasoning_steps": [
+      {
+        "timestamp": "2025-09-21T13:35:15.424380",
+        "query": "waht is basic model of smart home system",
+        "processing_time": "0:00:24.927607"
+      }
+    ],
+    "export_history": []
+  }
+}

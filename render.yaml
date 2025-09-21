@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: deep-research-agent
+    env: python
+    plan: starter  # Can upgrade to standard/pro for more resources
+    buildCommand: |
+      pip install --upgrade pip &&
+      pip install -r requirements.txt &&
+      python -c "import nltk; nltk.download('punkt')" &&
+      python -c "import nltk; nltk.download('stopwords')" &&
+      python ingestion.py
+    startCommand: python app.py
+    healthCheckPath: /health
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false  # Set this in Render dashboard
+      - key: PORT
+        value: 10000
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: RENDER_ENV
+        value: production
+    disk:
+      name: research-data
+      mountPath: /opt/render/project/src/storage
+      sizeGB: 1  # Adjust based on your data size needs
